@@ -47,25 +47,29 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
     let prefix: string = "";
     let suffix: string = "";
     // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.bold) {
-      prefix = suffix = "**";
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.italic) {
-      prefix = suffix = "*";
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.code) {
-      prefix = suffix = "`";
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.strikethrough) {
-      prefix = suffix = "~~";
-    }
-    // @ts-ignore
     if (block.paragraph.rich_text.at(i).annotations.underline) {
       prefix = "<ins>";
       suffix = "</ins>";
+    }
+    // @ts-ignore
+    if (block.paragraph.rich_text.at(i).annotations.bold) {
+      prefix = prefix.concat("**");
+      suffix = "**".concat(suffix);
+    }
+    // @ts-ignore
+    if (block.paragraph.rich_text.at(i).annotations.italic) {
+      prefix = prefix.concat("*");
+      suffix = "*".concat(suffix);
+    }
+    // @ts-ignore
+    if (block.paragraph.rich_text.at(i).annotations.code) {
+      prefix = prefix.concat("`");
+      suffix = "`".concat(suffix);
+    }
+    // @ts-ignore
+    if (block.paragraph.rich_text.at(i).annotations.strikethrough) {
+      prefix = prefix.concat("~~");
+      suffix = "~~".concat(suffix);
     }
     // @ts-ignore
     result = result.concat(prefix, block.paragraph.rich_text.at(i).plain_text, suffix);
