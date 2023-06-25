@@ -3,8 +3,9 @@ import {
   Heading1BlockObjectResponse,
   Heading2BlockObjectResponse,
   Heading3BlockObjectResponse,
-  ParagraphBlockObjectResponse,
+  ParagraphBlockObjectResponse, RichTextItemResponse
 } from "@notionhq/client/build/src/api-endpoints";
+import { AnnotationResponse } from "./AnnotationResponse";
 
 function Generator(block: BlockObjectResponse): string {
   switch (block.type) {
@@ -21,63 +22,73 @@ function Generator(block: BlockObjectResponse): string {
 }
 
 function generateH1(block: Heading1BlockObjectResponse): string {
+  let styled_text: string = handleRichText(block.heading_1.rich_text)
   const prefix: string = "# ";
   const suffix: string = "\n";
-  // @ts-ignore
-  return prefix + block.heading_1.rich_text.at(0).plain_text + suffix;
+
+  return prefix + styled_text + suffix;
 }
 
 function generateH2(block: Heading2BlockObjectResponse): string {
+  let styled_text: string = handleRichText(block.heading_2.rich_text)
   const prefix: string = "## ";
   const suffix: string = "\n";
-  // @ts-ignore
-  return prefix + block.heading_2.rich_text.at(0).plain_text + suffix;
+
+  return prefix + styled_text + suffix;
 }
 
 function generateH3(block: Heading3BlockObjectResponse): string {
+  let styled_text: string = handleRichText(block.heading_3.rich_text)
   const prefix: string = "### ";
   const suffix: string = "\n";
-  // @ts-ignore
-  return prefix + block.heading_3.rich_text.at(0).plain_text + suffix;
+
+  return prefix + styled_text + suffix;
 }
 
 function generateParagraph(block: ParagraphBlockObjectResponse): string {
-  let result: string = "";
-  for (let i = 0; i < block.paragraph.rich_text.length; i++) {
-    let prefix: string = "";
-    let suffix: string = "";
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.underline) {
-      prefix = "<ins>";
-      suffix = "</ins>";
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.bold) {
-      prefix = prefix.concat("**");
-      suffix = "**".concat(suffix);
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.italic) {
-      prefix = prefix.concat("*");
-      suffix = "*".concat(suffix);
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.code) {
-      prefix = prefix.concat("`");
-      suffix = "`".concat(suffix);
-    }
-    // @ts-ignore
-    if (block.paragraph.rich_text.at(i).annotations.strikethrough) {
-      prefix = prefix.concat("~~");
-      suffix = "~~".concat(suffix);
-    }
-    // @ts-ignore
-    result = result.concat(prefix, block.paragraph.rich_text.at(i).plain_text, suffix);
-  }
+  let styled_text: string = handleRichText(block.paragraph.rich_text)
 
   const suffix: string = "  \n";
-  // @ts-ignore
-  return result + suffix;
+  return styled_text + suffix;
+}
+
+function handleRichText(rich_texts : Array<RichTextItemResponse>) : string {
+  let result: string = "";
+  for (let i = 0; i < rich_texts.length; i++) {
+    let annotations : AnnotationResponse = rich_texts[i].annotations;
+    let styled_text : string = applyAnnotations( rich_texts[i].plain_text, annotations );
+
+    result = result + styled_text;
+  }
+  
+  return result;
+}
+function applyAnnotations(text: string, annotations: AnnotationResponse) : string {
+  let prefix: string = "";
+  let suffix: string = "";
+
+  if (annotations.underline) {
+    prefix = "<ins>";
+    suffix = "</ins>";
+  }
+  if (annotations.bold) {
+    prefix = prefix + "**";
+    suffix = "**" + suffix;
+  }
+  if (annotations.italic) {
+    prefix = prefix + "*";
+    suffix = "*" + suffix;
+  }
+  if (annotations.code) {
+    prefix = prefix + "`";
+    suffix = "`" + suffix;
+  }
+  if (annotations.strikethrough) {
+    prefix = prefix + "~~";
+    suffix = "~~" + suffix;
+  }
+
+  return prefix + text + suffix;
 }
 
 export default Generator;
