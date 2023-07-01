@@ -24,33 +24,54 @@ function Generator(block: BlockObjectResponse): string {
 
 function generateH1(block: Heading1BlockObjectResponse): string {
   let styled_text: string = handleRichText(block.heading_1.rich_text);
-  const prefix: string = "# ";
-  const suffix: string = "\n";
+  let prefix: string = "# ";
+  let suffix: string = "\n";
+
+  if (block.heading_1.color != "default") {
+    prefix += getColorPrefix(block.heading_1.color);
+    suffix = "</span>" + suffix;
+  }
 
   return prefix + styled_text + suffix;
 }
 
 function generateH2(block: Heading2BlockObjectResponse): string {
   let styled_text: string = handleRichText(block.heading_2.rich_text);
-  const prefix: string = "## ";
-  const suffix: string = "\n";
+  let prefix: string = "## ";
+  let suffix: string = "\n";
+
+  if (block.heading_2.color != "default") {
+    prefix += getColorPrefix(block.heading_2.color);
+    suffix = "</span>" + suffix;
+  }
 
   return prefix + styled_text + suffix;
 }
 
 function generateH3(block: Heading3BlockObjectResponse): string {
   let styled_text: string = handleRichText(block.heading_3.rich_text);
-  const prefix: string = "### ";
-  const suffix: string = "\n";
+  let prefix: string = "### ";
+  let suffix: string = "\n";
+
+  if (block.heading_3.color != "default") {
+    prefix += getColorPrefix(block.heading_3.color);
+    suffix = "</span>" + suffix;
+  }
 
   return prefix + styled_text + suffix;
 }
 
 function generateParagraph(block: ParagraphBlockObjectResponse): string {
   let styled_text: string = handleRichText(block.paragraph.rich_text);
+  let prefix: string = "";
+  let suffix: string = "  \n";
 
-  const suffix: string = "  \n";
-  return styled_text + suffix;
+  if (block.paragraph.color != "default") {
+    prefix += getColorPrefix(block.paragraph.color);
+    suffix = "</span>" + suffix;
+  }
+
+  return prefix + styled_text + suffix;
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
@@ -67,6 +88,19 @@ function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
 
   return result;
 }
+
+function getColorPrefix(color: string): string {
+  let prefix: string = "";
+  if (color.includes("_background")) {
+    let c: string = color.split("_")[0];
+    prefix += '<span style="background-color:' + c + '">';
+  } else {
+    prefix += '<span style="color:' + color + '">';
+  }
+
+  return prefix;
+}
+
 function applyAnnotations(
   text: string,
   annotations: AnnotationResponse
@@ -75,14 +109,8 @@ function applyAnnotations(
   let suffix: string = "";
 
   if (annotations.color != "default") {
-    if (annotations.color.includes("_background")) {
-      let color: string = annotations.color.split("_")[0];
-      prefix += '<span style="background-color:' + color + '">';
-    } else {
-      prefix += '<span style="color:' + annotations.color + '">';
-    }
-
-    suffix = "</span>";
+    prefix += getColorPrefix(annotations.color);
+    suffix = "</span>" + suffix;
   }
   if (annotations.underline) {
     prefix += "<ins>";
