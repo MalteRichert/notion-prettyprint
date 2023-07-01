@@ -3,7 +3,8 @@ import {
   Heading1BlockObjectResponse,
   Heading2BlockObjectResponse,
   Heading3BlockObjectResponse,
-  ParagraphBlockObjectResponse, RichTextItemResponse
+  ParagraphBlockObjectResponse,
+  RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 
@@ -22,7 +23,7 @@ function Generator(block: BlockObjectResponse): string {
 }
 
 function generateH1(block: Heading1BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_1.rich_text)
+  let styled_text: string = handleRichText(block.heading_1.rich_text);
   const prefix: string = "# ";
   const suffix: string = "\n";
 
@@ -30,7 +31,7 @@ function generateH1(block: Heading1BlockObjectResponse): string {
 }
 
 function generateH2(block: Heading2BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_2.rich_text)
+  let styled_text: string = handleRichText(block.heading_2.rich_text);
   const prefix: string = "## ";
   const suffix: string = "\n";
 
@@ -38,7 +39,7 @@ function generateH2(block: Heading2BlockObjectResponse): string {
 }
 
 function generateH3(block: Heading3BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_3.rich_text)
+  let styled_text: string = handleRichText(block.heading_3.rich_text);
   const prefix: string = "### ";
   const suffix: string = "\n";
 
@@ -46,45 +47,61 @@ function generateH3(block: Heading3BlockObjectResponse): string {
 }
 
 function generateParagraph(block: ParagraphBlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.paragraph.rich_text)
+  let styled_text: string = handleRichText(block.paragraph.rich_text);
 
   const suffix: string = "  \n";
   return styled_text + suffix;
 }
 
-function handleRichText(rich_texts : Array<RichTextItemResponse>) : string {
+function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   let result: string = "";
   for (let i = 0; i < rich_texts.length; i++) {
-    let annotations : AnnotationResponse = rich_texts[i].annotations;
-    let styled_text : string = applyAnnotations( rich_texts[i].plain_text, annotations );
+    let annotations: AnnotationResponse = rich_texts[i].annotations;
+    let styled_text: string = applyAnnotations(
+      rich_texts[i].plain_text,
+      annotations
+    );
 
     result = result + styled_text;
   }
-  
+
   return result;
 }
-function applyAnnotations(text: string, annotations: AnnotationResponse) : string {
+function applyAnnotations(
+  text: string,
+  annotations: AnnotationResponse
+): string {
   let prefix: string = "";
   let suffix: string = "";
 
+  if (annotations.color != "default") {
+    if (annotations.color.includes("_background")) {
+      let color: string = annotations.color.split("_")[0];
+      prefix += '<span style="background-color:' + color + '">';
+    } else {
+      prefix += '<span style="color:' + annotations.color + '">';
+    }
+
+    suffix = "</span>";
+  }
   if (annotations.underline) {
-    prefix = "<ins>";
-    suffix = "</ins>";
+    prefix += "<ins>";
+    suffix = "</ins>" + suffix;
   }
   if (annotations.bold) {
-    prefix = prefix + "**";
+    prefix += "**";
     suffix = "**" + suffix;
   }
   if (annotations.italic) {
-    prefix = prefix + "*";
+    prefix += "*";
     suffix = "*" + suffix;
   }
   if (annotations.code) {
-    prefix = prefix + "`";
+    prefix += "`";
     suffix = "`" + suffix;
   }
   if (annotations.strikethrough) {
-    prefix = prefix + "~~";
+    prefix += "~~";
     suffix = "~~" + suffix;
   }
 
