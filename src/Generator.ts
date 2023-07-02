@@ -1,5 +1,6 @@
 import {
   BlockObjectResponse,
+  BulletedListItemBlockObjectResponse,
   Heading1BlockObjectResponse,
   Heading2BlockObjectResponse,
   Heading3BlockObjectResponse,
@@ -8,18 +9,36 @@ import {
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 
-function Generator(block: BlockObjectResponse): string {
+function Generator(
+  block: BlockObjectResponse,
+  indentation_level: number
+): string {
+  let tabs: string = "";
+  for (let i: number = 0; i < indentation_level; i++) {
+    tabs += "\t";
+  }
+  let content: string;
   switch (block.type) {
     case "heading_1":
-      return generateH1(block);
+      content = generateH1(block);
+      break;
     case "heading_2":
-      return generateH2(block);
+      content = generateH2(block);
+      break;
     case "heading_3":
-      return generateH3(block);
+      content = generateH3(block);
+      break;
     case "paragraph":
-      return generateParagraph(block);
+      content = generateParagraph(block);
+      break;
+    case "bulleted_list_item":
+      content = generateBullet(block);
+      break;
+    default:
+      content = "Type " + block.type + " is currently not supported.  \n";
   }
-  return "Type " + block.type + " is currently not supported.  \n";
+
+  return tabs + content;
 }
 
 function generateH1(block: Heading1BlockObjectResponse): string {
@@ -68,6 +87,19 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
 
   if (block.paragraph.color != "default") {
     prefix += getColorPrefix(block.paragraph.color);
+    suffix = "</span>" + suffix;
+  }
+
+  return prefix + styled_text + suffix;
+}
+
+function generateBullet(block: BulletedListItemBlockObjectResponse): string {
+  let styled_text: string = handleRichText(block.bulleted_list_item.rich_text);
+  let prefix: string = "- ";
+  let suffix: string = "\n";
+
+  if (block.bulleted_list_item.color != "default") {
+    prefix += getColorPrefix(block.bulleted_list_item.color);
     suffix = "</span>" + suffix;
   }
 
