@@ -3,3 +3,8 @@ dist
 .env
 .idea
 response.json
+
+#TexShop
+*.aux
+*.log
+*.synctex.gz
