@@ -8,17 +8,31 @@ import {
   RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
+import { TeXBlock } from "./TeXBlock";
 
 function Generator(
   block: BlockObjectResponse,
   indentation_level: number,
+  bullet_indentation_level: number,
+  parent_type: string,
   prev_block_type: string,
   next_block_type: string
-): string {
-  let tabs: string = "";
-  for (let i: number = 0; i < indentation_level; i++) {
-    tabs += "\t";
+): TeXBlock {
+  let prefix: string = "";
+  let suffix: string = "";
+
+  if (indentation_level > 0 && block.type != "bulleted_list_item") {
+    if (prev_block_type == "" && parent_type != "bulleted_list_item") {
+      prefix = "\\begin{itemize}\n";
+    }
+
+    prefix += "\\item[ ] ";
   }
+
+  if (indentation_level > 0 && next_block_type == "") {
+    suffix = "\\end{itemize}\n";
+  }
+
   let content: string;
   switch (block.type) {
     case "heading_1":
@@ -34,13 +48,20 @@ function Generator(
       content = generateParagraph(block);
       break;
     case "bulleted_list_item":
-      content = generateBullet(block, prev_block_type, next_block_type);
+      let texBlock: TeXBlock = generateBullet(block, indentation_level, bullet_indentation_level, prev_block_type, next_block_type);
+      content = texBlock.content;
+      if (prefix == "") {
+        prefix += texBlock.prefix;
+      }
+      if (suffix == "") {
+        suffix = texBlock.suffix;
+      }
       break;
     default:
       content = "Type " + block.type + " is currently not supported.\n";
   }
 
-  return tabs + content;
+  return new TeXBlock(prefix, content, suffix);
 }
 
 function generateH1(block: Heading1BlockObjectResponse): string {
@@ -95,27 +116,40 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
   return prefix + styled_text + suffix;
 }
 
-function generateBullet(block: BulletedListItemBlockObjectResponse, prev_block_type: string, next_block_type: string): string {
+function generateBullet(
+  block: BulletedListItemBlockObjectResponse,
+  block_indentation_level: number,
+  bullet_indentation_level: number,
+  prev_block_type: string,
+  next_block_type: string
+): TeXBlock {
   let styled_text: string = handleRichText(block.bulleted_list_item.rich_text);
-  let prefix: string = "";
-  let suffix: string = "";
+  let global_prefix: string = "";
+  let prefix: string;
+  let global_suffix: string = "";
+  let suffix: string = "\n";
+  let label: string = "";
+  switch (bullet_indentation_level % 3) {
+    case 1: label = "[•]"; break;
+    case 2: label = "[◦]"; break;
+    case 0: label = "[$\\blacksquare$]"; break;
+  }
 
   if (prev_block_type != "bulleted_list_item") {
-    prefix += "\\begin{itemize}\n"
+    global_prefix = "\\begin{itemize}\n";
   }
   if (next_block_type != "bulleted_list_item") {
-    suffix = "\\end{itemize}\n" + suffix;
+    global_suffix = "\\end{itemize}\n";
   }
 
-  prefix += "\t\\item ";
-  suffix = "\n" + suffix;
+  prefix = "\\item" + label + " ";
 
   if (block.bulleted_list_item.color != "default") {
     prefix += getColorPrefix(block.bulleted_list_item.color);
     suffix = "}" + suffix;
   }
 
-  return prefix + styled_text + suffix;
+  return new TeXBlock(global_prefix, prefix + styled_text + suffix, global_suffix);
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
