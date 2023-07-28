@@ -12,7 +12,7 @@ export class AnnotationResponse {
     strikethrough: boolean,
     underline: boolean,
     code: boolean,
-    color: string
+    color: string,
   ) {
     this.bold = bold;
     this.italic = italic;

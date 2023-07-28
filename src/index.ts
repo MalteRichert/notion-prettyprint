@@ -12,16 +12,20 @@ import { TeXBlock } from "./TeXBlock";
 
 dotenv.config();
 
-async function main() : Promise<void> {
+async function main(): Promise<void> {
   const notion: Client = new Client({
     auth: process.env.NOTION_TOKEN,
   });
 
   const block_id: string = "955ece1e27004d81b45c6afc5c427138";
-  let content: string = await getAndHandleChildren(notion, block_id, "",0, 0);
-  const prefix: string = "\\documentclass[12pt, a4paper]{article}\n" +
-      "\\usepackage[normalem]{ulem}\n" + "\\usepackage{xcolor}\n" + "\\usepackage{amssymb}\n" + "\\begin{document}\n";
-  const suffix: string = "\\end{document}"
+  let content: string = await getAndHandleChildren(notion, block_id, "", 0, 0);
+  const prefix: string =
+    "\\documentclass[12pt, a4paper]{article}\n" +
+    "\\usepackage[normalem]{ulem}\n" +
+    "\\usepackage{xcolor}\n" +
+    "\\usepackage{amssymb}\n" +
+    "\\begin{document}\n";
+  const suffix: string = "\\end{document}";
 
   fs.writeFileSync("./export.tex", prefix + content + suffix);
 }
@@ -31,13 +35,13 @@ async function getAndHandleChildren(
   block_id: string,
   parent_type: string,
   recursion_count: number,
-  bullet_recursion_count: number
+  bullet_recursion_count: number,
 ): Promise<string> {
   const response: ListBlockChildrenResponse = await notion.blocks.children.list(
     {
       block_id: block_id,
       page_size: 100,
-    }
+    },
   );
 
   let content: string = "";
@@ -50,24 +54,22 @@ async function getAndHandleChildren(
       let next_block_type: string = "";
       let prev_block_type: string = "";
 
-      if (i+1 < response.results.length) {
-        const next_block_response: PartialBlockObjectResponse | BlockObjectResponse = response.results[i+1];
+      if (i + 1 < response.results.length) {
+        const next_block_response:
+          | PartialBlockObjectResponse
+          | BlockObjectResponse = response.results[i + 1];
         if ("parent" in next_block_response) {
           next_block_type = next_block_response.type;
         }
       }
 
-      if (i-1 >= 0) {
-        const prev_block_response: PartialBlockObjectResponse | BlockObjectResponse = response.results[i-1];
+      if (i - 1 >= 0) {
+        const prev_block_response:
+          | PartialBlockObjectResponse
+          | BlockObjectResponse = response.results[i - 1];
         if ("parent" in prev_block_response) {
           prev_block_type = prev_block_response.type;
         }
-      }
-
-      if (block.type == "bulleted_list_item" || block.type == "numbered_list_item") {
-        bullet_recursion_count += 1;
-      } else {
-        bullet_recursion_count = 0;
       }
 
       let tex_block: TeXBlock = Generator(
@@ -76,18 +78,24 @@ async function getAndHandleChildren(
         bullet_recursion_count,
         parent_type,
         prev_block_type,
-        next_block_type
+        next_block_type,
       );
 
       content += tex_block.prefix + tex_block.content;
 
       if (block.has_children) {
+        if (
+          block.type == "bulleted_list_item" ||
+          block.type == "numbered_list_item"
+        ) {
+          bullet_recursion_count += 1;
+        }
         content += await getAndHandleChildren(
           notion,
           block.id,
           block.type,
           recursion_count + 1,
-          bullet_recursion_count
+          bullet_recursion_count,
         );
       }
 

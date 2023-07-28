@@ -16,7 +16,7 @@ function Generator(
   bullet_indentation_level: number,
   parent_type: string,
   prev_block_type: string,
-  next_block_type: string
+  next_block_type: string,
 ): TeXBlock {
   let prefix: string = "";
   let suffix: string = "";
@@ -48,7 +48,13 @@ function Generator(
       content = generateParagraph(block);
       break;
     case "bulleted_list_item":
-      let texBlock: TeXBlock = generateBullet(block, indentation_level, bullet_indentation_level, prev_block_type, next_block_type);
+      let texBlock: TeXBlock = generateBullet(
+        block,
+        indentation_level,
+        bullet_indentation_level,
+        prev_block_type,
+        next_block_type,
+      );
       content = texBlock.content;
       if (prefix == "") {
         prefix += texBlock.prefix;
@@ -121,7 +127,7 @@ function generateBullet(
   block_indentation_level: number,
   bullet_indentation_level: number,
   prev_block_type: string,
-  next_block_type: string
+  next_block_type: string,
 ): TeXBlock {
   let styled_text: string = handleRichText(block.bulleted_list_item.rich_text);
   let global_prefix: string = "";
@@ -130,9 +136,15 @@ function generateBullet(
   let suffix: string = "\n";
   let label: string = "";
   switch (bullet_indentation_level % 3) {
-    case 1: label = "[•]"; break;
-    case 2: label = "[◦]"; break;
-    case 0: label = "[$\\blacksquare$]"; break;
+    case 0:
+      label = "[•]";
+      break;
+    case 1:
+      label = "[◦]";
+      break;
+    case 2:
+      label = "[$\\blacksquare$]";
+      break;
   }
 
   if (prev_block_type != "bulleted_list_item") {
@@ -149,7 +161,11 @@ function generateBullet(
     suffix = "}" + suffix;
   }
 
-  return new TeXBlock(global_prefix, prefix + styled_text + suffix, global_suffix);
+  return new TeXBlock(
+    global_prefix,
+    prefix + styled_text + suffix,
+    global_suffix,
+  );
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
@@ -158,7 +174,7 @@ function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
     let annotations: AnnotationResponse = rich_texts[i].annotations;
     let styled_text: string = applyAnnotations(
       rich_texts[i].plain_text,
-      annotations
+      annotations,
     );
 
     result = result + styled_text;
@@ -173,7 +189,7 @@ function getColorPrefix(color: string): string {
     let c: string = color.split("_")[0];
     prefix += "\\colorbox{" + c + "}{";
   } else {
-    prefix += "\\textcolor{" + color + '}{';
+    prefix += "\\textcolor{" + color + "}{";
   }
 
   return prefix;
@@ -181,7 +197,7 @@ function getColorPrefix(color: string): string {
 
 function applyAnnotations(
   text: string,
-  annotations: AnnotationResponse
+  annotations: AnnotationResponse,
 ): string {
   let prefix: string = "";
   let suffix: string = "";
