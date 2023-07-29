@@ -170,14 +170,20 @@ function generateBullet(
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   let result: string = "";
-  for (let i = 0; i < rich_texts.length; i++) {
-    let annotations: AnnotationResponse = rich_texts[i].annotations;
+  for (const richText of rich_texts) {
+    let prefix: string = "";
+    let suffix: string = "";
+    if (richText.href != null) {
+      prefix = "\\href{" + richText.href + "}{";
+      suffix = "}";
+    }
+
     let styled_text: string = applyAnnotations(
-      rich_texts[i].plain_text,
-      annotations,
+      richText.plain_text,
+      richText.annotations,
     );
 
-    result = result + styled_text;
+    result += prefix + styled_text + suffix;
   }
 
   return result;

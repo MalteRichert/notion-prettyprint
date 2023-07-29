@@ -19,11 +19,25 @@ async function main(): Promise<void> {
 
   const block_id: string = "955ece1e27004d81b45c6afc5c427138";
   let content: string = await getAndHandleChildren(notion, block_id, "", 0, 0);
+
+  const hyper_setup: string =
+    "\\hypersetup{\n" +
+    "    colorlinks=true,\n" +
+    "    linkcolor=blue,\n" +
+    "    filecolor=blue,\n" +
+    "    urlcolor=blue,\n" +
+    "    pdftitle={PrettyPrint Export},\n" +
+    "    pdfpagemode=FullScreen,\n" +
+    "    }\n" +
+    "\n" +
+    "\\urlstyle{same}\n";
+
   const prefix: string =
     "\\documentclass[12pt, a4paper]{article}\n" +
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
+    "\\usepackage{hyperref}\n" + hyper_setup + //hyperref has to be the last package to be imported
     "\\begin{document}\n";
   const suffix: string = "\\end{document}";
 
