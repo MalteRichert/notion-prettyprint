@@ -29,7 +29,6 @@ async function main(): Promise<void> {
     "    pdftitle={PrettyPrint Export},\n" +
     "    pdfpagemode=FullScreen,\n" +
     "    }\n" +
-    "\n" +
     "\\urlstyle{same}\n";
 
   const prefix: string =
@@ -37,8 +36,9 @@ async function main(): Promise<void> {
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
-    "\\usepackage{hyperref}\n" + hyper_setup + //hyperref has to be the last package to be imported
-    "\\begin{document}\n";
+    "\\usepackage{hyperref}\n" + //hyperref has to be the last package to be imported
+    hyper_setup +
+    "\n\\begin{document}\n";
   const suffix: string = "\\end{document}";
 
   fs.writeFileSync("./export.tex", prefix + content + suffix);
@@ -59,6 +59,7 @@ async function getAndHandleChildren(
   );
 
   let content: string = "";
+  let benched_suffix: string = "";
   for (let i: number = 0; i < response.results.length; i++) {
     const block_response: PartialBlockObjectResponse | BlockObjectResponse =
       response.results[i];
@@ -98,22 +99,32 @@ async function getAndHandleChildren(
       content += tex_block.prefix + tex_block.content;
 
       if (block.has_children) {
-        if (
-          block.type == "bulleted_list_item" ||
-          block.type == "numbered_list_item"
-        ) {
-          bullet_recursion_count += 1;
+        let bullet_recursion_adder: number = 0;
+        if (block.type == "bulleted_list_item") {
+          bullet_recursion_adder = 1;
         }
         content += await getAndHandleChildren(
           notion,
           block.id,
           block.type,
           recursion_count + 1,
-          bullet_recursion_count,
+          bullet_recursion_count + bullet_recursion_adder,
         );
       }
 
-      content += tex_block.suffix;
+      if (
+        next_block_type != "bulleted_list_item" &&
+        next_block_type != "numbered_list_item"
+      ) {
+        content += tex_block.suffix + benched_suffix;
+      } else if (
+        block.type == "bulleted_list_item" ||
+        block.type == "numbered_list_item"
+      ) {
+        content += tex_block.suffix;
+      } else {
+        benched_suffix = tex_block.suffix;
+      }
     } else {
       throw Error("Received partial block " + block_response.id);
     }

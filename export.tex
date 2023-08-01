@@ -11,25 +11,29 @@
     pdftitle={PrettyPrint Export},
     pdfpagemode=FullScreen,
     }
-
 \urlstyle{same}
+
 \begin{document}
 \section{\texttt{PrettyPrint} in programming}
 \textbf{In} \textit{programming}, \underline{PrettyPrint} \sout{refers} \texttt{to} \underline{\textbf{\textit{the}}} process of formatting or displaying the source code in an organized and easily readable form. 
-
 \begin{itemize}
 \item[ ] The primary objective of PrettyPrint is to improve the code's readability by adding spacing, indentations, and line breaks while ignoring the code's semantic meaning.
-
 \begin{itemize}
 \item[ ] This is a double-nested block.
-
+\begin{enumerate}
+\item This is a first item
+\begin{enumerate}
+\item this a first nested item
+\end{enumerate}
+\item This is a second item.
+\end{enumerate}
 \begin{itemize}
-\item[•] This is a first bullet
-\item[•] This is a second bullet.
-\item[•] This is a third bullet.
-\item[ ] This is a triple-nested block.
-
+\item[•] This is a bullet.
 \end{itemize}
+\begin{enumerate}
+\item This is a newly numbered item.
+\item[ ] This is a nested block.
+\end{enumerate}
 \end{itemize}
 \end{itemize}
 \subsection{\textcolor{red}{\underline{Code}}\underline{ Editors}}
@@ -44,9 +48,8 @@
 \end{itemize}
 \end{itemize}
 \end{itemize}
-\item[◦] Various programming languages come with their own PrettyPrint tools or libraries that enable developers to format their code automatically. For example, \href{http://python.org/}{Python} has a built-in \texttt{pprint} module that formats data structures in a more readable form. Similarly, JavaScript has a \texttt{prettier} library that formats the JavaScript code automatically.
+\item[•] Various programming languages come with their own PrettyPrint tools or libraries that enable developers to format their code automatically. For example, \href{http://python.org/}{Python} has a built-in \texttt{pprint} module that formats data structures in a more readable form. Similarly, JavaScript has a \texttt{prettier} library that formats the JavaScript code automatically.
 \end{itemize}
 \subsubsection{Summary}
 \textcolor{red}{Overall}, \colorbox{green}{PrettyPrint} is a crucial feature in modern programming, helping developers maintain and analyze their code effectively.
-
 \end{document}

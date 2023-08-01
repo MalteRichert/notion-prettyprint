@@ -4,6 +4,7 @@ import {
   Heading1BlockObjectResponse,
   Heading2BlockObjectResponse,
   Heading3BlockObjectResponse,
+  NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
   RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
@@ -18,56 +19,70 @@ function Generator(
   prev_block_type: string,
   next_block_type: string,
 ): TeXBlock {
-  let prefix: string = "";
-  let suffix: string = "";
+  let tex_block: TeXBlock = new TeXBlock("", "", "");
 
-  if (indentation_level > 0 && block.type != "bulleted_list_item") {
-    if (prev_block_type == "" && parent_type != "bulleted_list_item") {
-      prefix = "\\begin{itemize}\n";
+  if (
+    indentation_level > 0 &&
+    block.type != "bulleted_list_item" &&
+    block.type != "numbered_list_item"
+  ) {
+    if (
+      (prev_block_type == "" ||
+        prev_block_type == "bulleted_list_item" ||
+        prev_block_type == "numbered_list_item") &&
+      parent_type != "bulleted_list_item" &&
+      parent_type != "numbered_list_item"
+    ) {
+      tex_block.prefix = "\\begin{itemize}\n";
     }
 
-    prefix += "\\item[ ] ";
+    tex_block.prefix += "\\item[ ] ";
+
+    if (
+      (next_block_type == "" ||
+        next_block_type == "bulleted_list_item" ||
+        next_block_type == "numbered_list_item") &&
+      parent_type != "bulleted_list_item" &&
+      parent_type != "numbered_list_item"
+    ) {
+      tex_block.suffix = "\\end{itemize}\n";
+    }
   }
 
-  if (indentation_level > 0 && next_block_type == "") {
-    suffix = "\\end{itemize}\n";
-  }
-
-  let content: string;
   switch (block.type) {
     case "heading_1":
-      content = generateH1(block);
+      tex_block.content = generateH1(block);
       break;
     case "heading_2":
-      content = generateH2(block);
+      tex_block.content = generateH2(block);
       break;
     case "heading_3":
-      content = generateH3(block);
+      tex_block.content = generateH3(block);
       break;
     case "paragraph":
-      content = generateParagraph(block);
+      tex_block.content = generateParagraph(block);
       break;
     case "bulleted_list_item":
-      let texBlock: TeXBlock = generateBullet(
+      tex_block = generateBullet(
         block,
-        indentation_level,
         bullet_indentation_level,
         prev_block_type,
         next_block_type,
       );
-      content = texBlock.content;
-      if (prefix == "") {
-        prefix += texBlock.prefix;
-      }
-      if (suffix == "") {
-        suffix = texBlock.suffix;
-      }
+      break;
+    case "numbered_list_item":
+      tex_block = generateNumberedListItem(
+        block,
+        prev_block_type,
+        next_block_type,
+      );
       break;
     default:
-      content = "Type " + block.type + " is currently not supported.\n";
+      tex_block.content =
+        "Type " + block.type + " is currently not supported.\n";
   }
 
-  return new TeXBlock(prefix, content, suffix);
+  return tex_block;
 }
 
 function generateH1(block: Heading1BlockObjectResponse): string {
@@ -112,7 +127,7 @@ function generateH3(block: Heading3BlockObjectResponse): string {
 function generateParagraph(block: ParagraphBlockObjectResponse): string {
   let styled_text: string = handleRichText(block.paragraph.rich_text);
   let prefix: string = "";
-  let suffix: string = "\n\n";
+  let suffix: string = "\n";
 
   if (block.paragraph.color != "default") {
     prefix += getColorPrefix(block.paragraph.color);
@@ -124,17 +139,16 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
 
 function generateBullet(
   block: BulletedListItemBlockObjectResponse,
-  block_indentation_level: number,
   bullet_indentation_level: number,
   prev_block_type: string,
   next_block_type: string,
 ): TeXBlock {
   let styled_text: string = handleRichText(block.bulleted_list_item.rich_text);
-  let global_prefix: string = "";
+  let tex_block: TeXBlock = new TeXBlock("", "", "");
   let prefix: string;
-  let global_suffix: string = "";
   let suffix: string = "\n";
   let label: string = "";
+
   switch (bullet_indentation_level % 3) {
     case 0:
       label = "[•]";
@@ -148,10 +162,10 @@ function generateBullet(
   }
 
   if (prev_block_type != "bulleted_list_item") {
-    global_prefix = "\\begin{itemize}\n";
+    tex_block.prefix = "\\begin{itemize}\n";
   }
   if (next_block_type != "bulleted_list_item") {
-    global_suffix = "\\end{itemize}\n";
+    tex_block.suffix = "\\end{itemize}\n";
   }
 
   prefix = "\\item" + label + " ";
@@ -161,11 +175,34 @@ function generateBullet(
     suffix = "}" + suffix;
   }
 
-  return new TeXBlock(
-    global_prefix,
-    prefix + styled_text + suffix,
-    global_suffix,
-  );
+  tex_block.content = prefix + styled_text + suffix;
+  return tex_block;
+}
+
+function generateNumberedListItem(
+  block: NumberedListItemBlockObjectResponse,
+  prev_block_type: string,
+  next_block_type: string,
+): TeXBlock {
+  let styled_text: string = handleRichText(block.numbered_list_item.rich_text);
+  let tex_block: TeXBlock = new TeXBlock("", "", "");
+  let prefix: string = "\\item ";
+  let suffix: string = "\n";
+
+  if (prev_block_type != "numbered_list_item") {
+    tex_block.prefix = "\\begin{enumerate}\n";
+  }
+  if (next_block_type != "numbered_list_item") {
+    tex_block.suffix = "\\end{enumerate}\n";
+  }
+
+  if (block.numbered_list_item.color != "default") {
+    prefix += getColorPrefix(block.numbered_list_item.color);
+    suffix = "}" + suffix;
+  }
+
+  tex_block.content = prefix + styled_text + suffix;
+  return tex_block;
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
