@@ -220,6 +220,8 @@ function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
       richText.annotations,
     );
 
+    styled_text = formatTexString(styled_text);
+
     result += prefix + styled_text + suffix;
   }
 
@@ -271,6 +273,32 @@ function applyAnnotations(
   }
 
   return prefix + text + suffix;
+}
+
+function formatTexString(input: string): string {
+  let output: string = "";
+  for (let i = 0; i < input.length; i++) {
+    if ((input[i] == "." || input[i] == "!" || input[i] == "?") && input[i+1] == " ") {
+      //insert line break after each sentence to avoid too long lines in LateX code.
+      //This does not affect the pdf output.
+      output += input[i] + "\n";
+      continue;
+    }
+    if (
+      input[i] == "%" ||
+      input[i] == "&" ||
+      input[i] == "$" ||
+      input[i] == "_" ||
+      input[i] == "#"
+    ) {
+      //escape LaTeX special characters
+      output += "\\" + input[i];
+      continue;
+    }
+
+    output += input[i];
+  }
+  return output;
 }
 
 export default Generator;
