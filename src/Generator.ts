@@ -79,7 +79,7 @@ function Generator(
       break;
     default:
       tex_block.content =
-        "Type " + block.type + " is currently not supported.\n";
+        "Type " + block.type + " is currently not supported.\n\n";
   }
 
   return tex_block;
@@ -127,7 +127,7 @@ function generateH3(block: Heading3BlockObjectResponse): string {
 function generateParagraph(block: ParagraphBlockObjectResponse): string {
   let styled_text: string = handleRichText(block.paragraph.rich_text);
   let prefix: string = "";
-  let suffix: string = "\n";
+  let suffix: string = "\n\n";
 
   if (block.paragraph.color != "default") {
     prefix += getColorPrefix(block.paragraph.color);
