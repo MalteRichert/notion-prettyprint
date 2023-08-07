@@ -4,21 +4,23 @@ import {
   Heading1BlockObjectResponse,
   Heading2BlockObjectResponse,
   Heading3BlockObjectResponse,
+  ImageBlockObjectResponse,
   NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
   RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 import { TeXBlock } from "./TeXBlock";
+import { promises as fs } from "fs";
 
-function Generator(
+async function Generator(
   block: BlockObjectResponse,
   indentation_level: number,
   bullet_indentation_level: number,
   parent_type: string,
   prev_block_type: string,
   next_block_type: string,
-): TeXBlock {
+): Promise<TeXBlock> {
   let tex_block: TeXBlock = new TeXBlock("", "", "");
 
   if (
@@ -76,6 +78,9 @@ function Generator(
         prev_block_type,
         next_block_type,
       );
+      break;
+    case "image":
+      tex_block.content = await generateImage(block);
       break;
     default:
       tex_block.content =
@@ -205,6 +210,52 @@ function generateNumberedListItem(
   return tex_block;
 }
 
+async function generateImage(block: ImageBlockObjectResponse): Promise<string> {
+  let url: string;
+  if (block.image.type == "external") {
+    url = block.image.external.url;
+  } else {
+    url = block.image.file.url;
+  }
+
+  const file_name: string = getNameFromUrl(url, block.image.type);
+  const file_path: string = "./images/" + file_name;
+  await downloadFile(file_path, url);
+
+  let caption: string = "";
+  if (block.image.caption.length > 0) {
+    caption = "\\caption{" + handleRichText(block.image.caption) + "}\n";
+  }
+  let prefix: string =
+    "\\begin{figure}[h]\n" +
+    "\\includegraphics[width=\\maxwidth{\\linewidth}]{";
+  let suffix: string = "}\n" + "\\centering\n" + caption + "\\end{figure}\n";
+
+  return prefix + file_name + suffix;
+}
+
+function getNameFromUrl(url: string, url_type: string): string {
+  let file_name: string;
+  if (url_type == "external") {
+    const url_parts: string[] = url.split("/");
+    file_name = url_parts[url_parts.length - 1];
+  } else {
+    const url_without_parameters: string = url.split("?")[0];
+    const url_parts: string[] = url_without_parameters.split("/");
+    file_name = url_parts[url_parts.length - 1];
+  }
+  const name_parts: string[] = file_name.split(".");
+  return name_parts[0] + "." + name_parts[name_parts.length - 1];
+}
+
+async function downloadFile(path: string, url: string) {
+  const response: Response = await fetch(url);
+  const blob: Blob = await response.blob();
+  const arr_buffer: ArrayBuffer = await blob.arrayBuffer();
+  const buffer: Buffer = Buffer.from(arr_buffer);
+  await fs.writeFile(path, buffer);
+}
+
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   let result: string = "";
   for (const richText of rich_texts) {
@@ -278,7 +329,10 @@ function applyAnnotations(
 function formatTexString(input: string): string {
   let output: string = "";
   for (let i = 0; i < input.length; i++) {
-    if ((input[i] == "." || input[i] == "!" || input[i] == "?") && input[i+1] == " ") {
+    if (
+      (input[i] == "." || input[i] == "!" || input[i] == "?") &&
+      input[i + 1] == " "
+    ) {
       //insert line break after each sentence to avoid too long lines in LateX code.
       //This does not affect the pdf output.
       output += input[i] + "\n";

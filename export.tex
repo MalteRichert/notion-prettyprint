@@ -2,7 +2,8 @@
 \usepackage[normalem]{ulem}
 \usepackage{xcolor}
 \usepackage{amssymb}
-\usepackage{hyperref}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }\usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -12,14 +13,21 @@
     pdfpagemode=FullScreen,
     }
 \urlstyle{same}
+\makeatletter
+\def\maxwidth#1{\ifdim\Gin@nat@width>#1 #1\else\Gin@nat@width\fi}
+\makeatother
 
 \begin{document}
 \section{\texttt{PrettyPrint} in programming}
 \textbf{In} \textit{programming}, \underline{PrettyPrint} \sout{refers} \texttt{to} \underline{\textbf{\textit{the}}} process of formatting or displaying the source code in an organized \& easily readable form.
  
 
-\begin{itemize}
-\item[ ] The primary objective of PrettyPrint is to improve the code's readability by adding spacing, indentations, and line breaks while ignoring the code's semantic meaning.
+\begin{figure}[h]
+\includegraphics[width=\maxwidth{\linewidth}]{220px-HTML_source_code_example.png}
+\centering
+\caption{This is the Wikipedia picture for PrettyPrint as an external URL}
+\end{figure}
+The primary objective of PrettyPrint is to improve the code's readability by adding spacing, indentations, and line breaks while ignoring the code's semantic meaning.
 
 \begin{itemize}
 \item[ ] This is a double-nested block.
@@ -40,8 +48,12 @@
 
 \end{enumerate}
 \end{itemize}
-\end{itemize}
 \subsection{\textcolor{red}{\underline{Code}}\underline{ Editors}}
+\begin{figure}[h]
+\includegraphics[width=\maxwidth{\linewidth}]{PrettyPrint.png}
+\centering
+\caption{This is the same picture as an uploaded file}
+\end{figure}
 \begin{itemize}
 \item[•] PrettyPrint is an essential feature in modern code editors and integrated development environments (IDEs).
  It helps developers to analyze and debug the code quickly and efficiently.

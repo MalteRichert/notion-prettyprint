@@ -31,13 +31,21 @@ async function main(): Promise<void> {
     "    }\n" +
     "\\urlstyle{same}\n";
 
+  const maxwidth_command: string =
+    "\\makeatletter\n" +
+    "\\def\\maxwidth#1{\\ifdim\\Gin@nat@width>#1 #1\\else\\Gin@nat@width\\fi}\n" +
+    "\\makeatother\n";
+
   const prefix: string =
     "\\documentclass[12pt, a4paper]{article}\n" +
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
+    "\\usepackage{graphicx}\n" + // support graphics
+    "\\graphicspath{ {./images/} }" + // specify graphics path
     "\\usepackage{hyperref}\n" + //hyperref has to be the last package to be imported
     hyper_setup +
+    maxwidth_command + // command to allow setting a maximum width for images
     "\n\\begin{document}\n";
   const suffix: string = "\\end{document}";
 
@@ -87,7 +95,7 @@ async function getAndHandleChildren(
         }
       }
 
-      let tex_block: TeXBlock = Generator(
+      let tex_block: TeXBlock = await Generator(
         block,
         recursion_count,
         bullet_recursion_count,
