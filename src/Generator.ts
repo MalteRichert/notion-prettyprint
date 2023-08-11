@@ -219,7 +219,7 @@ async function generateImage(block: ImageBlockObjectResponse): Promise<string> {
   }
 
   const file_name: string = getNameFromUrl(url, block.image.type);
-  const file_path: string = "./images/" + file_name;
+  const file_path: string = "./exports/images/" + file_name;
   await downloadFile(file_path, url);
 
   let caption: string = "";
