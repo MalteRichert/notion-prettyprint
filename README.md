@@ -15,10 +15,9 @@ or <span style="color:red">with font colors.</span>
 - Blocks can be nested up to 4 levels deep.
 
 ## 🫠 Current Limitations
-Apart from the blocks not supported at all yet, the following Notion features lead to unexpected behavior:
-- Using background color on text makes it overflow out of the right side without line break. Using background color to 
-highlight just one word should work in most cases though.
+Apart from the block types not supported at all yet, the following Notion features lead to unexpected behavior:
+- Background color is ignored. See issue [#17](https://github.com/MalteRichert/notion-prettyprint/issues/17).
 - Nesting of blocks is limited to four levels of nesting.
-- Nesting of numbered lists is not styled as in Notion yet.
+- Nesting of numbered lists is not styled as in Notion but in LaTeX default with labels 1., (a), i., A.
 - All numbered lists currently start at 1, even if they start at some other number in Notion.
 - Images are not indented. I think that's fine though.

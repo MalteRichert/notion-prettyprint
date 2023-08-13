@@ -96,8 +96,9 @@ function generateH1(block: Heading1BlockObjectResponse): string {
   let suffix: string = "}\n";
 
   if (block.heading_1.color != "default") {
-    prefix += getColorPrefix(block.heading_1.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.heading_1.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   return prefix + styled_text + suffix;
@@ -109,8 +110,9 @@ function generateH2(block: Heading2BlockObjectResponse): string {
   let suffix: string = "}\n";
 
   if (block.heading_2.color != "default") {
-    prefix += getColorPrefix(block.heading_2.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.heading_2.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   return prefix + styled_text + suffix;
@@ -122,8 +124,9 @@ function generateH3(block: Heading3BlockObjectResponse): string {
   let suffix: string = "}\n";
 
   if (block.heading_3.color != "default") {
-    prefix += getColorPrefix(block.heading_3.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.heading_3.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   return prefix + styled_text + suffix;
@@ -135,8 +138,9 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
   let suffix: string = "\n\n";
 
   if (block.paragraph.color != "default") {
-    prefix += getColorPrefix(block.paragraph.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.paragraph.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   return prefix + styled_text + suffix;
@@ -176,8 +180,9 @@ function generateBullet(
   prefix = "\\item" + label + " ";
 
   if (block.bulleted_list_item.color != "default") {
-    prefix += getColorPrefix(block.bulleted_list_item.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.bulleted_list_item.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   tex_block.content = prefix + styled_text + suffix;
@@ -202,8 +207,9 @@ function generateNumberedListItem(
   }
 
   if (block.numbered_list_item.color != "default") {
-    prefix += getColorPrefix(block.numbered_list_item.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(block.numbered_list_item.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
 
   tex_block.content = prefix + styled_text + suffix;
@@ -279,16 +285,11 @@ function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   return result;
 }
 
-function getColorPrefix(color: string): string {
-  let prefix: string = "";
+function getColorPrefix(color: string): TeXBlock {
   if (color.includes("_background")) {
-    let c: string = color.split("_")[0];
-    prefix += "\\colorbox{" + c + "}{";
-  } else {
-    prefix += "\\textcolor{" + color + "}{";
+    return new TeXBlock("", "", "");
   }
-
-  return prefix;
+  return new TeXBlock("\\textcolor{" + color + "}{", "", "}");
 }
 
 function applyAnnotations(
@@ -299,8 +300,9 @@ function applyAnnotations(
   let suffix: string = "";
 
   if (annotations.color != "default") {
-    prefix += getColorPrefix(annotations.color);
-    suffix = "}" + suffix;
+    const color: TeXBlock = getColorPrefix(annotations.color);
+    prefix += color.prefix;
+    suffix = color.suffix + suffix;
   }
   if (annotations.underline) {
     prefix += "\\underline{";
