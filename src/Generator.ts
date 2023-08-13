@@ -1,9 +1,6 @@
 import {
   BlockObjectResponse,
   BulletedListItemBlockObjectResponse,
-  Heading1BlockObjectResponse,
-  Heading2BlockObjectResponse,
-  Heading3BlockObjectResponse,
   ImageBlockObjectResponse,
   NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
@@ -20,6 +17,7 @@ async function Generator(
   parent_type: string,
   prev_block_type: string,
   next_block_type: string,
+  top_heading_level: number,
 ): Promise<TeXBlock> {
   let tex_block: TeXBlock = new TeXBlock("", "", "");
 
@@ -53,13 +51,25 @@ async function Generator(
 
   switch (block.type) {
     case "heading_1":
-      tex_block.content = generateH1(block);
+      tex_block.content = generateHeading(
+        top_heading_level,
+        block.heading_1.rich_text,
+        block.heading_1.color,
+      );
       break;
     case "heading_2":
-      tex_block.content = generateH2(block);
+      tex_block.content = generateHeading(
+        top_heading_level + 1,
+        block.heading_2.rich_text,
+        block.heading_2.color,
+      );
       break;
     case "heading_3":
-      tex_block.content = generateH3(block);
+      tex_block.content = generateHeading(
+        top_heading_level + 2,
+        block.heading_3.rich_text,
+        block.heading_3.color,
+      );
       break;
     case "paragraph":
       tex_block.content = generateParagraph(block);
@@ -90,43 +100,29 @@ async function Generator(
   return tex_block;
 }
 
-function generateH1(block: Heading1BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_1.rich_text);
-  let prefix: string = "\\section{";
+function generateHeading(
+  heading_level: number,
+  rich_text: Array<RichTextItemResponse>,
+  color: string,
+): string {
+  let styled_text: string = handleRichText(rich_text);
+
+  const headings: string[] = [
+    "part",
+    "section",
+    "subsection",
+    "subsubsection",
+    "paragraph",
+    "subparagraph",
+  ];
+
+  let prefix: string = "\\" + headings[heading_level] + "{";
   let suffix: string = "}\n";
 
-  if (block.heading_1.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.heading_1.color);
-    prefix += color.prefix;
-    suffix = color.suffix + suffix;
-  }
-
-  return prefix + styled_text + suffix;
-}
-
-function generateH2(block: Heading2BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_2.rich_text);
-  let prefix: string = "\\subsection{";
-  let suffix: string = "}\n";
-
-  if (block.heading_2.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.heading_2.color);
-    prefix += color.prefix;
-    suffix = color.suffix + suffix;
-  }
-
-  return prefix + styled_text + suffix;
-}
-
-function generateH3(block: Heading3BlockObjectResponse): string {
-  let styled_text: string = handleRichText(block.heading_3.rich_text);
-  let prefix: string = "\\subsubsection{";
-  let suffix: string = "}\n";
-
-  if (block.heading_3.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.heading_3.color);
-    prefix += color.prefix;
-    suffix = color.suffix + suffix;
+  if (color != "default") {
+    const tex_color: TeXBlock = handleColor(color);
+    prefix += tex_color.prefix;
+    suffix = tex_color.suffix + suffix;
   }
 
   return prefix + styled_text + suffix;
@@ -138,7 +134,7 @@ function generateParagraph(block: ParagraphBlockObjectResponse): string {
   let suffix: string = "\n\n";
 
   if (block.paragraph.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.paragraph.color);
+    const color: TeXBlock = handleColor(block.paragraph.color);
     prefix += color.prefix;
     suffix = color.suffix + suffix;
   }
@@ -180,7 +176,7 @@ function generateBullet(
   prefix = "\\item" + label + " ";
 
   if (block.bulleted_list_item.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.bulleted_list_item.color);
+    const color: TeXBlock = handleColor(block.bulleted_list_item.color);
     prefix += color.prefix;
     suffix = color.suffix + suffix;
   }
@@ -207,7 +203,7 @@ function generateNumberedListItem(
   }
 
   if (block.numbered_list_item.color != "default") {
-    const color: TeXBlock = getColorPrefix(block.numbered_list_item.color);
+    const color: TeXBlock = handleColor(block.numbered_list_item.color);
     prefix += color.prefix;
     suffix = color.suffix + suffix;
   }
@@ -285,7 +281,7 @@ function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   return result;
 }
 
-function getColorPrefix(color: string): TeXBlock {
+function handleColor(color: string): TeXBlock {
   if (color.includes("_background")) {
     return new TeXBlock("", "", "");
   }
@@ -300,7 +296,7 @@ function applyAnnotations(
   let suffix: string = "";
 
   if (annotations.color != "default") {
-    const color: TeXBlock = getColorPrefix(annotations.color);
+    const color: TeXBlock = handleColor(annotations.color);
     prefix += color.prefix;
     suffix = color.suffix + suffix;
   }

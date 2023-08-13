@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import {
   BlockObjectResponse,
   ListBlockChildrenResponse,
-  PartialBlockObjectResponse,
+  PartialBlockObjectResponse
 } from "@notionhq/client/build/src/api-endpoints";
 
 import Generator from "./Generator";
@@ -17,23 +17,35 @@ async function main(): Promise<void> {
     "955ece1e27004d81b45c6afc5c427138",
     "a87a84d79c5948058abff9a046799bbb",
   ];
+  const top_level_heading: number = 1; //section
 
   for (let i = 0; i < page_ids.length; i++) {
-    await writePageFile(page_ids[i], i);
+    await writePageFile(page_ids[i], i, top_level_heading);
   }
 }
 
-async function writePageFile(page_id: string, index: number): Promise<void> {
+async function writePageFile(
+  page_id: string,
+  page_index: number,
+  top_level_heading: number,
+): Promise<void> {
   const notion: Client = new Client({
     auth: process.env.NOTION_TOKEN,
   });
 
-  let content: string = await getAndHandleChildren(notion, page_id, "", 0, 0);
+  let content: string = await getAndHandleChildren(
+    notion,
+    page_id,
+    "",
+    0,
+    0,
+    top_level_heading,
+  );
   const prefix: string = getHeader();
   const suffix: string = "\\end{document}";
 
   fs.writeFileSync(
-    "./exports/export_" + index + ".tex",
+    "./exports/export_" + page_index + ".tex",
     prefix + content + suffix,
   );
 }
@@ -44,6 +56,7 @@ async function getAndHandleChildren(
   parent_type: string,
   recursion_count: number,
   bullet_recursion_count: number,
+  top_level_heading: number,
 ): Promise<string> {
   const response: ListBlockChildrenResponse = await notion.blocks.children.list(
     {
@@ -91,6 +104,7 @@ async function getAndHandleChildren(
       parent_type,
       prev_block_type,
       next_block_type,
+      top_level_heading,
     );
 
     content += tex_block.prefix + tex_block.content;
@@ -106,6 +120,7 @@ async function getAndHandleChildren(
         block.type,
         recursion_count + 1,
         bullet_recursion_count + bullet_recursion_adder,
+        top_level_heading,
       );
     }
 
@@ -146,8 +161,7 @@ function getHeader(): string {
     "\\def\\maxwidth#1{\\ifdim\\Gin@nat@width>#1 #1\\else\\Gin@nat@width\\fi}\n" +
     "\\makeatother\n";
 
-  const header: string =
-    "\\documentclass[12pt, a4paper]{article}\n" +
+  return "\\documentclass[12pt, a4paper]{article}\n" +
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
@@ -157,8 +171,6 @@ function getHeader(): string {
     hyper_setup +
     maxwidth_command + // command to allow setting a maximum width for images
     "\n\\begin{document}\n";
-
-  return header;
 }
 
 main()

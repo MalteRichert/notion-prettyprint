@@ -13,6 +13,7 @@ PDF export might be included in a post-1.0 version.
 - Text can be styled **bold**, *italic*, <ins>underlined</ins>, ~~struck-through~~, `as code` 
 or <span style="color:red">with font colors.</span>
 - Blocks can be nested up to 4 levels deep.
+- The mapping of Notion headings to LaTeX headings can be mapped manually to allow for pages that contain only subsections or entire parts of a larger document
 
 ## 🫠 Current Limitations
 Apart from the block types not supported at all yet, the following Notion features lead to unexpected behavior:
