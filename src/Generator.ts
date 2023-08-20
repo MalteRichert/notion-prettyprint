@@ -92,9 +92,11 @@ async function Generator(
     case "image":
       tex_block.content = await generateImage(block);
       break;
+    case "table_of_contents":
+      break;
     default:
       tex_block.content =
-        "Type " + block.type + " is currently not supported.\n\n";
+        "Type " + formatTexString(block.type) + " is currently not supported.\n\n";
   }
 
   return tex_block;

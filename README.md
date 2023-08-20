@@ -22,3 +22,4 @@ Apart from the block types not supported at all yet, the following Notion featur
 - Nesting of numbered lists is not styled as in Notion but in LaTeX default with labels 1., (a), i., A.
 - All numbered lists currently start at 1, even if they start at some other number in Notion.
 - Images are not indented. I think that's fine though.
+- Tables of contents are ignored for now. LaTeX does a better job of that.
