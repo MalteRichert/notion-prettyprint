@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import {
   BlockObjectResponse,
   ListBlockChildrenResponse,
-  PartialBlockObjectResponse
+  PartialBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 
 import Generator from "./Generator";
@@ -13,11 +13,8 @@ import { TeXBlock } from "./TeXBlock";
 dotenv.config();
 
 async function main(): Promise<void> {
-  const page_ids: string[] = [
-    "955ece1e27004d81b45c6afc5c427138",
-    "a87a84d79c5948058abff9a046799bbb",
-  ];
-  const top_level_heading: number = 1; //section
+  const page_ids: string[] = ["955ece1e27004d81b45c6afc5c427138"];
+  const top_level_heading: number = 1; //1=section
 
   for (let i = 0; i < page_ids.length; i++) {
     await writePageFile(page_ids[i], i, top_level_heading);
@@ -161,7 +158,8 @@ function getHeader(): string {
     "\\def\\maxwidth#1{\\ifdim\\Gin@nat@width>#1 #1\\else\\Gin@nat@width\\fi}\n" +
     "\\makeatother\n";
 
-  return "\\documentclass[12pt, a4paper]{article}\n" +
+  return (
+    "\\documentclass[12pt, a4paper]{article}\n" +
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
@@ -170,7 +168,8 @@ function getHeader(): string {
     "\\usepackage{hyperref}\n" + //hyperref has to be the last package to be imported
     hyper_setup +
     maxwidth_command + // command to allow setting a maximum width for images
-    "\n\\begin{document}\n";
+    "\n\\begin{document}\n"
+  );
 }
 
 main()

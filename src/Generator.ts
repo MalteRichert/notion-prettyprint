@@ -96,7 +96,10 @@ async function Generator(
       break;
     default:
       tex_block.content =
-        "Type " + formatTexString(block.type) + " is currently not supported.\n\n";
+        "\\textcolor{red}{" +
+        "Block type " +
+        formatTexString(block.type) +
+        " is currently not supported.}\n\n";
   }
 
   return tex_block;
