@@ -9,15 +9,17 @@ import {
 import Generator from "./Generator";
 import fs from "fs";
 import { TeXBlock } from "./TeXBlock";
+import { Language } from "./language";
 
 dotenv.config();
 
 async function main(): Promise<void> {
   const page_ids: string[] = ["955ece1e27004d81b45c6afc5c427138"];
-  const top_level_heading: number = 1; //1=section
+  const top_level_heading: number = 1; //1 -> section
+  const language: Language = Language.English;
 
   for (let i = 0; i < page_ids.length; i++) {
-    await writePageFile(page_ids[i], i, top_level_heading);
+    await writePageFile(page_ids[i], i, top_level_heading, language);
   }
 }
 
@@ -25,6 +27,7 @@ async function writePageFile(
   page_id: string,
   page_index: number,
   top_level_heading: number,
+  language: Language,
 ): Promise<void> {
   const notion: Client = new Client({
     auth: process.env.NOTION_TOKEN,
@@ -38,7 +41,7 @@ async function writePageFile(
     0,
     top_level_heading,
   );
-  const prefix: string = getHeader();
+  const prefix: string = getHeader(language);
   const suffix: string = "\\end{document}";
 
   fs.writeFileSync(
@@ -141,7 +144,7 @@ async function getAndHandleChildren(
   return content;
 }
 
-function getHeader(): string {
+function getHeader(language: Language): string {
   const hyper_setup: string =
     "\\hypersetup{\n" +
     "    colorlinks=true,\n" +
@@ -163,6 +166,10 @@ function getHeader(): string {
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +
+    "\\usepackage[" +
+    language +
+    "]{babel}\n" + //support localization, mainly for quotes
+    "\\usepackage[german=quotes]{csquotes}\n" + //support \enquote{} for structured quotes
     "\\usepackage{graphicx}\n" + // support graphics
     "\\graphicspath{ {./images/} }\n" + // specify graphics path
     "\\usepackage{hyperref}\n" + //hyperref has to be the last package to be imported

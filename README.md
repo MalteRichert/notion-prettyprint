@@ -13,7 +13,10 @@ PDF export might be included in a post-1.0 version.
 - Text can be styled **bold**, *italic*, <ins>underlined</ins>, ~~struck-through~~, `as code` 
 or <span style="color:red">with font colors.</span>
 - Blocks can be nested up to 4 levels deep.
-- The mapping of Notion headings to LaTeX headings can be mapped manually to allow for pages that contain only subsections or entire parts of a larger document
+- The mapping of Notion headings to LaTeX headings can be set manually 
+to allow for pages that contain only subsections or entire parts of a larger document.
+- Quotation marks are internationalized in accordance with a manually set document language. 
+Text that is marked as code is excluded from this.
 
 ## 🫠 Current Limitations
 Apart from the block types not supported at all yet, the following Notion features lead to unexpected behavior:
@@ -23,3 +26,5 @@ Apart from the block types not supported at all yet, the following Notion featur
 - All numbered lists currently start at 1, even if they start at some other number in Notion.
 - Images are not indented. I think that's fine though.
 - Tables of contents are ignored for now. LaTeX does a better job of that.
+- Languages for i18n are currently limited to English and German. That is only due to laziness on my part though.
+- Quotation is limited to two levels of nesting.

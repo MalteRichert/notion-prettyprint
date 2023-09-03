@@ -331,6 +331,7 @@ function applyAnnotations(
 
 function formatTexString(input: string): string {
   let output: string = "";
+
   for (let i = 0; i < input.length; i++) {
     if (
       (input[i] == "." || input[i] == "!" || input[i] == "?") &&
@@ -338,7 +339,7 @@ function formatTexString(input: string): string {
     ) {
       //insert line break after each sentence to avoid very long lines in LateX code.
       //This does not affect the pdf output.
-      output += input[i] + input[i+1] + "\n";
+      output += input[i] + input[i + 1] + "\n";
       continue;
     }
 
@@ -351,6 +352,16 @@ function formatTexString(input: string): string {
     ) {
       //escape LaTeX special characters
       output += "\\" + input[i];
+      continue;
+    }
+
+    if (input[i] == "“") {
+      output += "\\enquote{";
+      continue;
+    }
+
+    if (input[i] == "”") {
+      output += "}";
       continue;
     }
 
