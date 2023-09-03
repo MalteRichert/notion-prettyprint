@@ -336,11 +336,12 @@ function formatTexString(input: string): string {
       (input[i] == "." || input[i] == "!" || input[i] == "?") &&
       input[i + 1] == " "
     ) {
-      //insert line break after each sentence to avoid too long lines in LateX code.
+      //insert line break after each sentence to avoid very long lines in LateX code.
       //This does not affect the pdf output.
-      output += input[i] + "\n";
+      output += input[i] + input[i+1] + "\n";
       continue;
     }
+
     if (
       input[i] == "%" ||
       input[i] == "&" ||
