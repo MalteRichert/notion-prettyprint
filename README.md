@@ -10,7 +10,8 @@ PDF export might be included in a post-1.0 version.
     - Numbered List Item
     - Headings 1-3
     - Image
-- Text can be styled **bold**, *italic*, <ins>underlined</ins>, ~~struck-through~~, `as code` 
+    - Equation
+- Text can be styled **bold**, *italic*, <ins>underlined</ins>, ~~struck-through~~, `as code`, as equation 
 or <span style="color:red">with font colors.</span>
 - Blocks can be nested up to 4 levels deep.
 - The mapping of Notion headings to LaTeX headings can be set manually 
@@ -28,3 +29,6 @@ Apart from the block types not supported at all yet, the following Notion featur
 - Tables of contents are ignored for now. LaTeX does a better job of that.
 - Languages for i18n are currently limited to English and German. That is only due to laziness on my part though.
 - Quotation is limited to two levels of nesting.
+- In Notion, you can apply styling to inline equations 
+(bold, italic etc.) without it having much of an effect. LaTeX actually displays these stylings which might lead to 
+unexpected results, e.g. if you styled an equation in Notion and forgot about it.

@@ -1,10 +1,10 @@
 import {
   BlockObjectResponse,
-  BulletedListItemBlockObjectResponse,
+  BulletedListItemBlockObjectResponse, EquationBlockObjectResponse,
   ImageBlockObjectResponse,
   NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
-  RichTextItemResponse,
+  RichTextItemResponse
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 import { TeXBlock } from "./TeXBlock";
@@ -91,6 +91,9 @@ async function Generator(
       break;
     case "image":
       tex_block.content = await generateImage(block);
+      break;
+    case "equation":
+      tex_block.content = generateEquation(block);
       break;
     case "table_of_contents":
       break;
@@ -263,14 +266,26 @@ async function downloadFile(path: string, url: string) {
   await fs.writeFile(path, buffer);
 }
 
+function generateEquation(block: EquationBlockObjectResponse): string {
+  const prefix: string = "\\begin{equation} ";
+  const suffix: string = "\\end{equation}\n";
+  return prefix + block.equation.expression + suffix;
+}
+
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
   let result: string = "";
   for (const richText of rich_texts) {
     let prefix: string = "";
     let suffix: string = "";
+
     if (richText.href != null) {
       prefix = "\\href{" + richText.href + "}{";
       suffix = "}";
+    }
+
+    if (richText.type == "equation") {
+      prefix += "$";
+      suffix = "$" + suffix;
     }
 
     let styled_text: string = applyAnnotations(
