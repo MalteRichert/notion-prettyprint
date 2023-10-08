@@ -156,6 +156,19 @@ function getHeader(language: Language): string {
     "    }\n" +
     "\\urlstyle{same}\n";
 
+  const listings_setup: string =
+    "\\definecolor{backcolor}{rgb}{0.94,0.94,0.94}\n" +
+    "\\definecolor{codegrey}{rgb}{0.5,0.5,0.5}\n" +
+    "\\lstdefinestyle{mystyle}{\n" +
+    "    backgroundcolor=\\color{backcolor},\n" +
+    "    captionpos=b,\n" +
+    "    numberstyle=\\tiny\\color{codegrey},\n" +
+    "    basicstyle=\\ttfamily\\footnotesize,\n" +
+    "    numbers=left,\n" +
+    "    numbersep=5pt,\n" +
+    "}" +
+    "\\lstset{style=mystyle}\n";
+
   const maxwidth_command: string =
     "\\makeatletter\n" +
     "\\def\\maxwidth#1{\\ifdim\\Gin@nat@width>#1 #1\\else\\Gin@nat@width\\fi}\n" +
@@ -170,10 +183,12 @@ function getHeader(language: Language): string {
     language +
     "]{babel}\n" + //support localization, mainly for quotes
     "\\usepackage[german=quotes]{csquotes}\n" + //support \enquote{} for structured quotes
-    "\\usepackage{graphicx}\n" + // support graphics
-    "\\graphicspath{ {./images/} }\n" + // specify graphics path
+    "\\usepackage{graphicx}\n" + //support graphics
+    "\\graphicspath{ {./images/} }\n" + //specify graphics path
+    "\\usepackage{listings}\n" + //support code blocks
     "\\usepackage{hyperref}\n" + //hyperref has to be the last package to be imported
     hyper_setup +
+    listings_setup +
     maxwidth_command + // command to allow setting a maximum width for images
     "\n\\begin{document}\n"
   );

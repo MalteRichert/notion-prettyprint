@@ -11,6 +11,7 @@ PDF export might be included in a post-1.0 version.
     - Headings 1-3
     - Image
     - Equation
+    - Code
 - Text can be styled **bold**, *italic*, <ins>underlined</ins>, ~~struck-through~~, `as code`, as equation 
 or <span style="color:red">with font colors.</span>
 - Blocks can be nested up to 4 levels deep.
@@ -32,3 +33,5 @@ Apart from the block types not supported at all yet, the following Notion featur
 - In Notion, you can apply styling to inline equations 
 (bold, italic etc.) without it having much of an effect. LaTeX actually displays these stylings which might lead to 
 unexpected results, e.g. if you styled an equation in Notion and forgot about it.
+- Notion code blocks are exported into the `listings` environment without syntax highlighting. 
+If you'd like to add syntax highlighting to your code in LaTeX, check out the `listings` docs or the `minted` package.

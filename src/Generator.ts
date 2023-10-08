@@ -1,10 +1,12 @@
 import {
   BlockObjectResponse,
-  BulletedListItemBlockObjectResponse, EquationBlockObjectResponse,
+  BulletedListItemBlockObjectResponse,
+  CodeBlockObjectResponse,
+  EquationBlockObjectResponse,
   ImageBlockObjectResponse,
   NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
-  RichTextItemResponse
+  RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 import { TeXBlock } from "./TeXBlock";
@@ -94,6 +96,9 @@ async function Generator(
       break;
     case "equation":
       tex_block.content = generateEquation(block);
+      break;
+    case "code":
+      tex_block.content = generateCodeBlock(block);
       break;
     case "table_of_contents":
       break;
@@ -270,6 +275,15 @@ function generateEquation(block: EquationBlockObjectResponse): string {
   const prefix: string = "\\begin{equation} ";
   const suffix: string = "\\end{equation}\n";
   return prefix + block.equation.expression + suffix;
+}
+
+function generateCodeBlock(block: CodeBlockObjectResponse): string {
+  let prefix: string = "\\begin{lstlisting}";
+  const suffix: string = "\n\\end{lstlisting}\n";
+
+  prefix += "[caption=" + handleRichText(block.code.caption) + "]\n";
+
+  return prefix + handleRichText(block.code.rich_text) + suffix;
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
