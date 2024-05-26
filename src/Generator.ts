@@ -7,6 +7,8 @@ import {
   NumberedListItemBlockObjectResponse,
   ParagraphBlockObjectResponse,
   RichTextItemResponse,
+  TableBlockObjectResponse,
+  TableRowBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { AnnotationResponse } from "./AnnotationResponse";
 import { TeXBlock } from "./TeXBlock";
@@ -26,7 +28,8 @@ async function Generator(
   if (
     indentation_level > 0 &&
     block.type != "bulleted_list_item" &&
-    block.type != "numbered_list_item"
+    block.type != "numbered_list_item" &&
+    block.type != "table_row"
   ) {
     if (
       (prev_block_type == "" ||
@@ -99,6 +102,12 @@ async function Generator(
       break;
     case "code":
       tex_block.content = generateCodeBlock(block);
+      break;
+    case "table":
+      tex_block = generateTable(block);
+      break;
+    case "table_row":
+      tex_block.content = generateTableRow(block);
       break;
     case "table_of_contents":
       break;
@@ -284,6 +293,29 @@ function generateCodeBlock(block: CodeBlockObjectResponse): string {
   prefix += "[caption=" + handleRichText(block.code.caption) + "]\n";
 
   return prefix + handleRichText(block.code.rich_text) + suffix;
+}
+
+function generateTable(block: TableBlockObjectResponse): TeXBlock {
+  let tex_block: TeXBlock = new TeXBlock("", "", "");
+  tex_block.prefix = "\\begin{table}[h]\n\t\\centering\n\t\\begin{tabular}{|";
+  tex_block.suffix = "\t\\end{tabular}\n\\end{table}\n";
+
+  for (let i = 0; i < block.table.table_width; i++) {
+    tex_block.prefix += "c|";
+  }
+  tex_block.prefix += "} \\hline\n";
+
+  return tex_block;
+}
+
+function generateTableRow(block: TableRowBlockObjectResponse): string {
+  let prefix: string = "\t\t";
+  let suffix: string = " \\\\ \\hline\n";
+  let content: string = handleRichText(block.table_row.cells[0]);
+  for (let i = 1; i < block.table_row.cells.length; i++) {
+    content += " & " + handleRichText(block.table_row.cells[i]);
+  }
+  return prefix + content + suffix;
 }
 
 function handleRichText(rich_texts: Array<RichTextItemResponse>): string {
