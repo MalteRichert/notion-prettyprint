@@ -16,7 +16,7 @@ dotenv.config();
 async function main(): Promise<void> {
   const page_ids: string[] = ["955ece1e27004d81b45c6afc5c427138"];
   const top_level_heading: number = 1; //1 -> section
-  const language: Language = Language.English;
+  const language: Language = Language.German;
 
   for (let i = 0; i < page_ids.length; i++) {
     await writePageFile(page_ids[i], i, top_level_heading, language);
@@ -175,7 +175,7 @@ function getHeader(language: Language): string {
     "\\makeatother\n";
 
   return (
-    "\\documentclass[12pt, a4paper]{article}\n" +
+    "\\documentclass[12pt, a4paper]{scrreprt}\n" +
     "\\usepackage[normalem]{ulem}\n" +
     "\\usepackage{xcolor}\n" +
     "\\usepackage{amssymb}\n" +

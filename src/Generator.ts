@@ -121,7 +121,7 @@ function generateHeading(
   let styled_text: string = handleRichText(rich_text);
 
   const headings: string[] = [
-    "part",
+    "chapter",
     "section",
     "subsection",
     "subsubsection",
