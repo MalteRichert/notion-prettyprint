@@ -8,7 +8,7 @@ import {
 
 import Generator from "./Generator";
 import fs from "fs";
-import { TeXBlock } from "./TeXBlock";
+import { TeXBlock } from "./model/TeXBlock";
 import { Language } from "./language";
 
 dotenv.config();
