@@ -10,8 +10,8 @@ import {
   TableBlockObjectResponse,
   TableRowBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import { AnnotationResponse } from "./AnnotationResponse";
-import { TeXBlock } from "./TeXBlock";
+import { AnnotationResponse } from "./model/AnnotationResponse";
+import { TeXBlock } from "./model/TeXBlock";
 import { promises as fs } from "fs";
 
 async function Generator(
